@@ -16,6 +16,11 @@ public class SOSGameGUI extends Application {
   private SOSGame game;
   private VBox root;
   private Label current;
+  private GridPane boardGrid;
+  private RadioButton s;
+  private RadioButton o;
+  private ToggleGroup letter;
+  private Label label;
 
   @Override
   public void start(Stage primaryStage) {
@@ -39,15 +44,22 @@ public class SOSGameGUI extends Application {
     boardSize.getItems().addAll(3, 4, 5, 6, 7, 8, 9, 10);
     boardSize.setValue(3);
 
-    //Start Button
-    Button play = new Button("Start Game");
-    play.setOnAction(e -> {
-      game = new SOSGame(boardSize.getValue(), gamemode.getSelectedToggle().getUserData().toString());
+
+    Button newGameButton = new Button("New Game");
+    newGameButton.setOnAction(e -> {
+      root.getChildren().removeAll(s,o,current,boardGrid,label);
+      if (gamemode.getSelectedToggle().getUserData().toString().equals("Simple")) {
+        game = new SimpleGame(boardSize.getValue(), gamemode.getSelectedToggle().getUserData().toString());
+      } else {
+        game = new GeneralGame(boardSize.getValue(), gamemode.getSelectedToggle().getUserData().toString());
+        label = new Label("Red: " + game.getred() + "\nBlue: " + game.getblue());
+        root.getChildren().add(label);
+      }
       createBoard(boardSize.getValue());
     });
 
     //Add Components
-    root.getChildren().addAll(simple, general, boardSize, play);
+    root.getChildren().addAll(simple, general, boardSize, newGameButton);
     primaryStage.setScene(myScene);
     primaryStage.setTitle("SOS GAME");
     primaryStage.setWidth(600);
@@ -55,16 +67,18 @@ public class SOSGameGUI extends Application {
     primaryStage.show();
   }
 
+
+
   //create board
   public void createBoard(int size) {
-    GridPane boardGrid = new GridPane();
+    boardGrid = new GridPane();
     boardGrid.setHgap(5);
     boardGrid.setVgap(5);
 
     //add radio buttons for s or o
-    ToggleGroup letter = new ToggleGroup();
-    RadioButton s = new RadioButton("S");
-    RadioButton o = new RadioButton("O");
+    letter = new ToggleGroup();
+    s = new RadioButton("S");
+    o = new RadioButton("O");
     s.setToggleGroup(letter);
     o.setToggleGroup(letter);
     s.setSelected(true);
@@ -86,7 +100,7 @@ public class SOSGameGUI extends Application {
         buttons[i][j] = button;
       }
     }
-
+    
     root.getChildren().addAll(s, o, current, boardGrid);
 
   }
@@ -95,15 +109,24 @@ public class SOSGameGUI extends Application {
   public void handleMove(int row, int col, char letter) {
     if (game.makeMove(row, col, letter)) {
       buttons[row][col].setText(String.valueOf(letter));
-      game.switchPlayer();
-      current.setText("Current Player: " + game.getcurrentPlayer());
-
+      if(game.getMode().equals("General"))
+        label.setText("Red: " + game.getred() + "\n" + "Blue: " + game.getblue());
+      if (game.isGameOver()) {
+          current.setText("Game Over " + game.getWinner());
+      } 
+      else if (game.isFull()) {
+        current.setText("Game Over it's a Draw");
+      }
+      else{
+        System.out.println(game.getcurrentPlayer());
+        game.switchPlayer();
+        current.setText("Current Player: " + game.getcurrentPlayer());
+      }
     }
-
   }
+
 
   public static void main(String[] args) {
     launch(args);
   }
 }
-

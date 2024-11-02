@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class SOSGame {
   private final int size;
   private final String mode;
-  private final char[][] board;
+  protected  final char[][] board;
   private String currentPlayer;
 
   //create a new game initialize game mode and size
@@ -28,7 +28,24 @@ public class SOSGame {
     board[row][col] = letter;
     return true;
   }
+  public boolean isGameOver() {
+    return isFull();
+  }
 
+  public String getWinner() {
+    return currentPlayer+" wins!";
+  }
+
+  public boolean isFull() {
+    for (char[] row : board) {
+      for (char cell : row) {
+        if (cell == ' ') {
+          return false; // Game is not over if there's an empty cell
+        }
+      }
+    }
+    return true; // Return true if the board is full and no winner
+  }
   //switch to the other player
   public void switchPlayer() {
     currentPlayer = (currentPlayer.equals("Red")) ? "Blue" : "Red";
@@ -48,5 +65,10 @@ public class SOSGame {
   public int getSize() {
     return size;
   }
-
+  public int getred(){
+    return 0;
+  }
+  public int getblue(){
+    return 0;
+  }
 }
